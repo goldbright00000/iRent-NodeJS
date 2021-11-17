@@ -1,4 +1,4 @@
-const stripe = require('stripe')('sk_live_6aZmxxvH4racmYveW4MEA0Qc');
+const stripe = require('stripe')('NONE');
 const generator = require('generate-password');
 
 const Email = require('../../util/email');
