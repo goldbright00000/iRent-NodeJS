@@ -2,6 +2,8 @@ const Email = require('../../util/email');
 const models = require('../../models/importAll');
 const moment = require('moment');
 const html_to_pdf = require('html-pdf-node');
+const axios = require('axios');
+const base64 = require('base-64');
 
 exports.getSlip = async (req, res, next) => {
     try {
@@ -599,5 +601,172 @@ exports.getEditDeposits = async (req, res, next) => {
             "iRent Backend - Deposit Controller - getEditDeposits"
         );
         return res.json({});
+    }  
+}
+
+exports.getTenantsByProperty = async (req, res, next) => {
+    try {
+        const propertyID = req.params.pID;
+        
+        return res.json(await models.Tenants.getByProperty(propertyID));
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Deposit Controller - getTenantsByProperty"
+        );
+        return res.json([]);
+    }  
+}
+
+exports.processTenantCCPayment = async (req, res, next) => {
+    try {
+        const data = req.body.data || req.body;
+        
+        const addOnlinePayment = async (args) => {
+            // insert into check register
+            const crID = await models.CheckRegister.add({
+                propertyID: args.propertyID,
+                vendorID: 0,
+                amount: args.amount,
+                memo: 'via Credit Card',
+                expenseTypeID: 20,
+                transactionType: 2,
+                paid: 0,
+                escrow: 0,
+                invoiceDate: moment.utc().format("YYYY-MM-DD"),
+                invoiceNumber: 0,
+                userID: args.userID,
+                unitID: 0
+            });
+
+            // add tenant transaction
+            await models.TenantTransactions.addOneTimeFee({
+                chargeTypeID: 1,
+                tenantID: args.tenantID,
+                transactionType: 2,
+                amount: args.amount,
+                comment: 'Tenant Payment via Credit Card',
+                paymentType: 7,
+                checkRegister: crID,
+                userID: args.userID,
+                checkNumber: 'Tenant Credit Card Payment',
+                depositSourceID: 1,
+                stripeChargeID: args.chargeID
+            });
+
+            const tenant = await models.Tenants.get(args.tenantID);
+            if(tenant !== null && tenant.TenantEmail !== '') {
+                const tenantEmail = new Email();
+                const tenantTransporter = tenantEmail.getTransporter();
+                await tenantTransporter.sendMail({
+                    from: 'support@myirent.com', 
+                    to: tenant.TenantEmail, 
+                    subject: "Payment Received",
+                    html: `
+                        <b>Online Payment Amount:</b> $${parseFloat(args.amount).toFixed(2)} received. <br/>
+                        Tenant: ${tenant.TenantFName} ${tenant.TenantLName}
+                        Best Wishes, <br/><br/>
+                        <b>iRent</b>
+                    `,
+                });
+            }
+        }
+
+        const epicPay = await models.EpicPayKeys.getByPropertyID(data.propertyID);
+        if(epicPay !== null) {
+            // EpicPay
+            const reqUrl = `https://api.epicpay.com/payment/v1/authorize`;
+            const amt = parseInt(data.amount * 100);
+            const stFields = {
+                "amount": amt,
+				"currency": "usd",
+				"method": "credit_card",
+				"transaction_type": "sale",
+				"credit_card":{
+				    "card_number": data.cardNUmber,
+				    "card_holder_name": data.cardName,
+				    "exp_month": data.cardExpMonth,
+				    "exp_year": data.cardExpYear,
+				    "cvv": data.cardCVC
+				},
+				"billing_address":{
+				    "postal_code": data.cardZip
+				}
+            };
+            await axios.post(reqUrl, JSON.stringify(stFields), 
+                { headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${base64.encode(`${epicPay.APIKey}:${epicPay.PasswordKey}`)}`
+                } })
+                .then(async (result) => {
+                    const resData = result.data;
+                    if(resData.status.response_code === 'Error') {
+                        return res.json(resData.status.reason_text)
+                    }
+                    if(resData.status.response_code === 'Declined') {
+                        return res.json(resData.status.reason_text)
+                    }
+                    // add the charge to the appropriate tables
+                    await addOnlinePayment({
+                        propertyID: data.propertyID,
+                        amount: data.amount,
+                        userID: data.userID,
+                        tenantID: data.tenantID,
+                        chargeID: resData.result.payment.transaction_id
+                    });
+                    return res.json(0)
+                })
+                .catch((err) => {
+                    return res.json(-1)
+                })
+        } else {
+            // Stripe
+            const amt = parseInt(data.amount * 100);
+                
+            const stripe = require('stripe')('sk_live_6aZmxxvH4racmYveW4MEA0Qc');
+            await stripe.tokens.create({
+                card: {
+                  number: data.cardNUmber,
+                  exp_month: data.cardExpMonth,
+                  exp_year: data.cardExpYear,
+                  cvc: data.cardCVC,
+                },
+            }, async function(err, result) {
+                if(err) {
+                    error = err.message;
+                    return res.json(error);
+                }
+                await stripe.charges.create({
+                    amount: amt,
+                    currency: 'usd',
+                    source: result.id,
+                    description: `Tenant Payment. TenantID: ${data.tenantID}`,
+                }, async function(err2, result2) {
+                    if(err2) {
+                        //console.log(err2)
+                        error2 = err2.message;
+                        return res.json(error2);
+                    }
+                    // add the charge to the appropriate tables
+                    await addOnlinePayment({
+                        propertyID: data.propertyID,
+                        amount: data.amount,
+                        userID: data.userID,
+                        tenantID: data.tenantID,
+                        chargeID: result2.id
+                    });
+                });
+                return res.json(0)
+            });
+        }
+
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Deposit Controller - processTenantCCPayment"
+        );
+        return res.json(-1);
     }  
 }

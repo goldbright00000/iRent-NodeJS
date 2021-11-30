@@ -1,4 +1,5 @@
 const db = require('../util/database');
+const moment = require('moment');
 
 const formattedDate = (date) => {
     var d = new Date(date),
@@ -261,7 +262,7 @@ module.exports = class CheckRegister {
                  Paid, Reconciled, Escrow, InvoiceDate, PaidDate, InvoiceNumber, SubmittedBy, UnitID)
                 VALUES (${data.propertyID}, ${data.vendorID}, ${data.amount}, '${data.memo}', 
                  ${data.expenseTypeID}, '${formattedDate(new Date())}', ${data.transactionType}, ${data.paid}, '0', ${data.escrow}, 
-                 '${formattedDate(data.invoiceDate)}', '${formattedDate(new Date())}', '${data.invoiceNumber}', 
+                 '${moment.utc(data.invoiceDate).format("YYYY-MM-DD")}', '${formattedDate(new Date())}', '${data.invoiceNumber}', 
                  ${data.userID}, ${data.unitID});
             `);
             response = res[0].insertId;

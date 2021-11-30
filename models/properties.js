@@ -206,4 +206,21 @@ module.exports = class Properties {
         }
         return response;
     }
+
+    async getPropNamesByUser(userID) {
+        let response = [];
+        try {
+            const res = await db.execute(`
+                Select p.PropertyName, p.PropertyID
+                From Properties p
+                JOIN UserPropertyMap upm ON upm.PropertyID = p.PropertyID
+                WHERE p.Active != 2 AND upm.UserID = ${userID}
+                Order By p.PropertyName
+            `);
+            response = res[0];
+        } catch(err) {
+            console.log(err);
+        }
+        return response;
+    }
 }

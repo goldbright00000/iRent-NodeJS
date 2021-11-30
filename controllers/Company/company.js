@@ -1,4 +1,4 @@
-const stripe = require('stripe')('NONE');
+const stripe = require('stripe')('sk_live_6aZmxxvH4racmYveW4MEA0Qc');
 const generator = require('generate-password');
 
 const Email = require('../../util/email');
@@ -31,6 +31,8 @@ const Notifications = new NotificationsModel();
 const UserPropertyMap = new UserPropertyMapModel();
 const Owners = new OwnersModel();
 const OwnerPropertyMap = new OwnerPropertyMapModel();
+
+const models = require('../../models/importAll');
 
 exports.getDetails = async (req, res, next) => {
     try {
@@ -655,5 +657,255 @@ exports.updOwner = async (req, res, next) => {
             "iRent Backend - Company Controller - updOwner"
         );
         return res.json("Error processing your request. Please contact us");
+    }
+}
+
+exports.getJournalEntries = async (req, res, next) => {
+    try {
+        const propertyID = req.params.pID;
+        
+        return res.json(await models.Journal.getEntriesByProperty(propertyID))
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - getJournalEntries"
+        );
+        return res.json([]);
+    }
+}
+
+exports.getJournalType = async (req, res, next) => {
+    try {
+        return res.json(await models.JournalType.getAll())
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - getJournalType"
+        );
+        return res.json([]);
+    }
+}
+
+exports.addJournal = async (req, res, next) => {
+    try {
+        const data = req.body.data || req.body;
+
+        await models.Journal.includeJornal({
+            description: data.description.replace(/'/g, "\\'"),
+            journalTypeID: data.journalTypeID,
+            amount: data.amount,
+            propertyID: data.propertyID,
+            userID: data.userID,
+            lenderID: 0,
+        });
+
+        return res.json(0);
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - addJournal"
+        );
+        return res.json(-1);
+    }
+}
+
+exports.deleteJournal = async (req, res, next) => {
+    try {
+        const journalID = req.params.jID;
+
+        await models.Journal.deleteByID(journalID);
+        return res.json(0);
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - deleteJournal"
+        );
+        return res.json(-1);
+    }
+}
+
+exports.getJournalByID = async (req, res, next) => {
+    try {
+        const journalID = req.params.jID;
+
+        return res.json(await models.Journal.getByID(journalID));
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - getJournalByID"
+        );
+        return res.json([]);
+    }
+}
+
+exports.editJournal = async (req, res, next) => {
+    try {
+        const data = req.body.data || req.body;
+
+        await models.Journal.update({
+            description: data.description.replace(/'/g, "\\'"),
+            amount: data.amount,
+            journalTypeID: data.journalTypeID,
+            journalID: data.journalID,
+            userID: data.userID
+        });
+
+        return res.json(0);
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - editJournal"
+        );
+        return res.json(-1);
+    }
+}
+
+exports.getMakeReadyTasks = async (req, res, next) => {
+    try {
+        const propertyID = req.params.pID;
+
+        return res.json(await models.MakeReadyTasks.getByPropertyID(propertyID));
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - getMakeReadyTasks"
+        );
+        return res.json([]);
+    }
+}
+
+exports.deleteMakeReady = async (req, res, next) => {
+    try {
+        const mkID = req.params.mkID;
+
+        await models.MakeReadyTasks.delete(mkID);
+        return res.json(0);
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - deleteMakeReady"
+        );
+        return res.json(-1);
+    }
+}
+
+exports.addMakeReadyTask = async (req, res, next) => {
+    try {
+        const data = req.body.data || req.body;
+
+        await models.MakeReadyTasks.add({
+            task: data.task.replace(/'/g, "\\'"),
+            propertyID: data.propertyID
+        });
+
+        return res.json(0);
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - addMakeReadyTask"
+        );
+        return res.json(-1);
+    }
+}
+
+exports.getMakeReadyTaskByID = async (req, res, next) => {
+    try {
+        const mkID = req.params.mkID;
+
+        return res.json(await models.MakeReadyTasks.getById(mkID))
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - getMakeReadyTaskByID"
+        );
+        return res.json(null);
+    }
+}
+
+exports.updMakeReadyTask = async (req, res, next) => {
+    try {
+        const data = req.body.data || req.body;
+
+        await models.MakeReadyTasks.update({
+            task: data.task.replace(/'/g, "\\'"),
+            makeReadyTaskID: data.makeReadyTaskID
+        });
+
+        return res.json(0);
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - updMakeReadyTask"
+        );
+        return res.json(-1);
+    }
+}
+
+exports.getGLCategories = async (req, res, next) => {
+    try {
+        const propertyID = req.params.pID;
+            
+        return res.json(await models.PaymentsCategory.getByPropertyID(propertyID))
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - getGLCategories"
+        );
+        return res.json([]);
+    }
+}
+
+exports.deleteGLCategories = async (req, res, next) => {
+    try {
+        const paymentCategoryID = req.params.payID;
+            
+        await models.PaymentsCategory.deleteByID(paymentCategoryID);
+        return res.json(0);
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - getGLCategories"
+        );
+        return res.json(-1);
+    }
+}
+
+exports.addGLCategory = async (req, res, next) => {
+    try {
+        const data = req.body.data || req.body;
+
+        const exists = await models.PaymentsCategory.getByNameAndProperty({
+            propertyID: data.propertyID,
+            categoryName: data.categoryName
+        });
+        if(exists !== null)
+            return res.json("Category already exists!");
+
+        await models.PaymentsCategory.add({
+            propertyID: data.propertyID,
+            categoryName: data.categoryName
+        });
+
+        return res.json(0);
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - addGLCategory"
+        );
+        return res.json(-1);
     }
 }

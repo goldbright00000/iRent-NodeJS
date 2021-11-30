@@ -64,6 +64,11 @@ const TenantResponsesModel = require('./tenantResponses');
 const ApplicantCreditCardModel = require('./Applicantcreditcard');
 const HtmlFormsModel = require('./htmlforms');
 const AddOnProductsModel = require('./addOnProducts');
+const EpicPayKeysModel = require('./epicpaykeys');
+const JournalTypeModel = require('./journalType');
+const MakeReadyTasksModel = require('./makeReadyTasks');
+const UserPropertyMapModel = require('./userpropertymap');
+const FirstTimeUserModel = require('./firstTimeUser');
 
 module.exports = {
     Tenants: new TenantsModel(),
@@ -131,5 +136,10 @@ module.exports = {
     TenantResponses: new TenantResponsesModel(),
     ApplicantCreditCard: new ApplicantCreditCardModel(),
     HtmlForms: new HtmlFormsModel(),
-    AddOnProducts: new AddOnProductsModel()
+    AddOnProducts: new AddOnProductsModel(),
+    EpicPayKeys: new EpicPayKeysModel(),
+    JournalType: new JournalTypeModel(),
+    MakeReadyTasks: new MakeReadyTasksModel(),
+    UserPropertyMap: new UserPropertyMapModel(),
+    FirstTimeUser: new FirstTimeUserModel()
 };

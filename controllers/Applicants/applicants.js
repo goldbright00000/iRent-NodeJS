@@ -116,34 +116,67 @@ exports.convertToApplicant = async (req, res, next) => {
             tenantID: data.tenantID
         });
 
-        // update background
-        await models.Background.update({
-            houseNumber: data.houseNumber,
-            street: data.street,
-            unit: data.unit,
-            city: data.city,
-            state: data.state,
-            zip: data.zip,  
-            landlordName: data.landlordName,
-            landlordPhone: data.landlordPhone,
-            prevHouseNumber: data.prevHouseNumber,
-            prevStreet: data.prevStreet,
-            prevCity: data.prevCity,
-            prevState: data.prevState,
-            prevZip: data.prevZip,
-            prevLandlordName: data.prevLandlordName, 
-            prevLandlordPhone: data.prevLandlordPhone,
-            employer: data.employer,
-            employerContact: data.employerContact,
-            employerPhone: data.employerPhone,
-            employerSalary: data.employerSalary,
-            prevEmployer: data.prevEmployer, 
-            prevEmployerContact: data.prevEmployerContact,
-            prevEmployerPhone: data.prevEmployerPhone,
-            driversLicense: data.driversLicense,
-            dlState: data.dlState,
-            tenantID: data.tenantID,
-        });
+        // insert if does not exist
+        const isBackground = await models.Background.getByTenantID(data.tenantID);
+        if(isBackground !== null) {
+            // update background
+            await models.Background.update({
+                houseNumber: data.houseNumber,
+                street: data.street,
+                unit: data.unit,
+                city: data.city,
+                state: data.state,
+                zip: data.zip,  
+                landlordName: data.landlordName,
+                landlordPhone: data.landlordPhone,
+                prevHouseNumber: data.prevHouseNumber,
+                prevStreet: data.prevStreet,
+                prevCity: data.prevCity,
+                prevState: data.prevState,
+                prevZip: data.prevZip,
+                prevLandlordName: data.prevLandlordName, 
+                prevLandlordPhone: data.prevLandlordPhone,
+                employer: data.employer,
+                employerContact: data.employerContact,
+                employerPhone: data.employerPhone,
+                employerSalary: data.employerSalary,
+                prevEmployer: data.prevEmployer, 
+                prevEmployerContact: data.prevEmployerContact,
+                prevEmployerPhone: data.prevEmployerPhone,
+                driversLicense: data.driversLicense,
+                dlState: data.dlState,
+                tenantID: data.tenantID,
+            });
+        } else {
+            await models.Background.addProspectApplicant({
+                tenantID: data.tenantID,
+                dob: data.dob,
+                driversLicense: data.driversLicense,
+                dlState: data.dlState,
+                currSalary: 0,
+                currEmployer: data.employer,
+                currEmployerContact: data.employerContact,
+                currEmployerPhone: data.employerPhone,
+                prevEmployer: data.prevEmployer, 
+                prevEmployerContact: data.prevEmployerContact,
+                prevEmployerPhone: data.prevEmployerPhone,
+                houseNumber: data.houseNumber,
+                streetName: data.street,
+                city: data.city,
+                state: data.state,
+                zip: data.zip,
+                lastLandlordName: data.landlordName,
+                lastLandlordPhone: data.landlordPhone,
+                houseNumber2: '',
+                streetName2: '',
+                city2: '',
+                state2: '',
+                zip2: '',
+                state2: '',
+                prevLandlordName: data.prevLandlordName, 
+                prevLandlordPhone: data.prevLandlordPhone,
+            });
+        }
 
         return res.json(0);
     } catch(err) {

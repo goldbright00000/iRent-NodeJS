@@ -1,18 +1,5 @@
 const db = require('../util/database');
-
-const formattedDate = (date) => {
-    var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2) 
-        month = '0' + month;
-    if (day.length < 2) 
-        day = '0' + day;
-
-    return [year, month, day].join('-');
-}
+const moment = require('moment');
 
 module.exports = class Users {
 
@@ -90,6 +77,7 @@ module.exports = class Users {
                 From Users u
                 JOIN SecurityLevel s ON u.SecurityLevelID = s.SecurityLevelID
                 WHERE u.CompanyID = ${cID} AND u.Active = 1
+                Order By u.UserFName, u.UserLName
             `);
             response = res[0];
         } catch(err) {
@@ -99,7 +87,7 @@ module.exports = class Users {
     }
 
     async getByEmail(email) {
-        let response = {};
+        let response = null;
         try {
             const res = await db.execute(`
                 Select * From Users Where UserEmail = '${email}' and active = 1
@@ -120,7 +108,7 @@ module.exports = class Users {
                     (UserFName, UserLName, UserPhone, CellPhoneProviderID, UserEmail, 
                     UserPW, UserStartDate, SecurityLevelID, CompanyID, Active)
                 VALUES('${data.firstName}', '${data.lastname}', '${data.phone}', '${data.cellPhoneProvider}',
-                    '${data.email}', '${data.password}', '${formattedDate(new Date())}',
+                    '${data.email}', '${data.password}', '${moment.utc().format("YYYY-MM-DD")}',
                     ${data.securityLevelID}, ${data.companyID}, 1
                 )
             `);

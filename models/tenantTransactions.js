@@ -278,13 +278,14 @@ module.exports = class TenantTransactions {
             if(data.paymentType === undefined)      data.paymentType = 0;
             if(data.checkRegister === undefined)    data.checkRegister = 0;
             if(data.checkNumber === undefined)      data.checkNumber = '0';
+            if(data.stripeChargeID === undefined)   data.stripeChargeID = '';
             await db.execute(`
                 INSERT INTO TenantTransactions
                 (ChargeTypeID, TenantID, TransactionTypeID, TransactionAmount, Comment, TenantTransactionDate, PaymentTypeID, 
-                    CheckRegisterID, SubmittedBy, CheckNumber, DepositSourceID)
+                    CheckRegisterID, SubmittedBy, CheckNumber, DepositSourceID, StripeChargeID)
                 VALUES (${data.chargeTypeID}, ${data.tenantID}, ${data.transactionType}, ${data.amount}, 
                     '${data.comment}', '${formattedDate(dt)}', ${data.paymentType}, ${data.checkRegister}, ${data.userID}, 
-                    '${data.checkNumber}', ${data.depositSourceID});
+                    '${data.checkNumber}', ${data.depositSourceID}, '${data.stripeChargeID}');
             `);
         } catch(err) {
             console.log(err);

@@ -23,5 +23,7 @@ router.post('/addLender', depositController.addLender);
 router.get('/getHistory/:pID', depositController.getHistory);
 router.get('/deleteDepositHistory/:crID', depositController.deleteDepositHistory);
 router.get('/getEditDeposits/:crID', depositController.getEditDeposits);
+router.get('/getTenantsByProperty/:pID', depositController.getTenantsByProperty);
+router.post('/processTenantCCPayment', depositController.processTenantCCPayment);
 
 module.exports = router;

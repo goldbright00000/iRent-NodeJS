@@ -625,7 +625,7 @@ module.exports = class Tenants {
                 LEFT JOIN PreLeased pl ON pl.TenantID = t.TenantID
                 LEFT JOIN Units un ON pl.UnitID = un.UnitID
                 Where t.Prospect = 1 AND t.PropertyID = ${pID}
-                AND b.ApproveID != 4
+                AND (b.ApproveID != 4 OR b.ApproveID is null)
                 ORDER By ProspectStartDate
             `);
             response = res[0];

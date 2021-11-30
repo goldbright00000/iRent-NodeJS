@@ -1,4 +1,5 @@
 const db = require('../util/database');
+const moment = require('moment');
 
 const formattedDate = (date) => {
     var d = new Date(date),
@@ -82,7 +83,7 @@ module.exports = class Units {
         try {
             await db.execute(`
                 UPDATE Units
-                SET VacantDate = '${formattedDate(moveOutDate)}',
+                SET VacantDate = '${moment.utc(moveOutDate).format("YYYY-MM-DD")}',
                 Occupied='0'
                 WHERE UnitID = ${uID}
             `);

@@ -45,10 +45,12 @@ const profileRouter = require('./routes/Profile/Profile');
 const vendorRouter = require('./routes/Vendors/Vendors');
 // Applicants
 const applicantsRouter = require('./routes/Applicants/applicants');
+// Users
+const usersRouter = require('./routes/Users/Users');
 
 app.use(helmet());
 app.use(compression());
-app.use(express.json({limit: '60mb'}));
+app.use(express.json({limit: '250mb'}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -74,6 +76,7 @@ app.use('/profile', profileRouter);
 app.use('/vendors', vendorRouter);
 app.use('/companyProfile', companyProfile);
 app.use('/applicants', applicantsRouter);
+app.use('/users', usersRouter);
 
 // 404 error
 app.use((req, res, next) => {

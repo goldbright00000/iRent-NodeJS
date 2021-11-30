@@ -1,19 +1,5 @@
 const db = require('../util/database');
 
-const formattedDate = (date) => {
-    var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2) 
-        month = '0' + month;
-    if (day.length < 2) 
-        day = '0' + day;
-
-    return [year, month, day].join('-');
-}
-
 module.exports = class PaymentsCategory {
 
     async getByPropertyID(pID) {
@@ -51,6 +37,17 @@ module.exports = class PaymentsCategory {
             await db.execute(`
                 INSERT INTO paymentscategory (PropertyID, Category)
                 VALUES(${data.propertyID}, '${data.categoryName}')
+            `);
+        } catch(err) {
+            console.log(err);
+        }
+    }
+
+    async deleteByID(id) {
+        try {
+            await db.execute(`
+                DELETE From paymentscategory 
+                Where PaymentsCategoryID = ${id}
             `);
         } catch(err) {
             console.log(err);
