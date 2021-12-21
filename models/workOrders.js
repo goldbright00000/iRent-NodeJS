@@ -30,7 +30,8 @@ module.exports = class WorkOrders {
                 LEFT JOIN Users us ON wk.UserID = us.UserID
                 WHERE t.TenantID = ${tID}
                 AND wk.WorkOrderSubmitDate >= t.MoveInDate 
-                AND wk.WorkOrderSubmitDate <= t.MoveOutDate 
+                AND wk.WorkOrderSubmitDate <= t.MoveOutDate
+                AND t.prospect = 2
                 ORDER BY wk.WorkOrderSubmitDate
             `);
             if(res[0].length > 0)
