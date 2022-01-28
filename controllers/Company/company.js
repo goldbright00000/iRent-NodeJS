@@ -48,6 +48,20 @@ exports.getDetails = async (req, res, next) => {
     }  
 }
 
+exports.getLeadSource = async (req, res, next) => {
+    try {
+        const companyID = req.params.cID;
+        return res.json(await Company.getLeadSource(companyID));
+    } catch(err) {
+        const email = new Email();
+        await email.errorEmail(
+            err,
+            "iRent Backend - Company Controller - getLeadSource"
+        );
+        return res.json([]);
+    }  
+}
+
 exports.getCurrencies = async (req, res, next) => {
     try {
         const data = await Currencies.getAll();

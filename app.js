@@ -47,6 +47,8 @@ const vendorRouter = require('./routes/Vendors/Vendors');
 const applicantsRouter = require('./routes/Applicants/applicants');
 // Users
 const usersRouter = require('./routes/Users/Users');
+// Checks
+const checksRouter = require('./routes/Checks/checks');
 
 app.use(helmet());
 app.use(compression());
@@ -77,10 +79,11 @@ app.use('/vendors', vendorRouter);
 app.use('/companyProfile', companyProfile);
 app.use('/applicants', applicantsRouter);
 app.use('/users', usersRouter);
+app.use('/checks', checksRouter);
 
 // 404 error
 app.use((req, res, next) => {
     res.status(404).send('<h1>Page Not Found</h1>');
 });
 
-app.listen(process.env.PORT || 3006);
+app.listen(process.env.PORT || 5000);

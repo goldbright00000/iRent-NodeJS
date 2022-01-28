@@ -16,6 +16,20 @@ module.exports = class Company {
         return response;
     }
 
+    async getLeadSource(cID) {
+        let response = null;
+        try {
+            const res = await db.execute(`
+                SELECT LeadSourceCompanyID FROM Company Where CompanyID = ${cID}
+            `);
+            if(res[0].length > 0)
+                response = res[0][0];
+        } catch(err) {
+            console.log(err);
+        }
+        return response;
+    }
+
     async updDetails(data) {
         try {
             await db.execute(`

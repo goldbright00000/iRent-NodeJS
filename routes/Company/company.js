@@ -4,6 +4,7 @@ const router = express.Router();
 const companyController = require('../../controllers/Company/company');
 
 router.get('/get/:cID', companyController.getDetails);
+router.get('/:cID/LeadSource', companyController.getLeadSource);
 router.get('/currencies', companyController.getCurrencies);
 router.get('/billingNotification/:cID', companyController.getBillingNotification);
 router.get('/creditCard/:cID', companyController.getCompanyCC);

@@ -30,4 +30,54 @@ module.exports = class RecurringChargesTax {
         return response;
     }
 
+    async insertRecurringChargesTax(propertyID, data) {
+        await db.execute(`
+            INSERT INTO recurringchargestax (
+                RentPercentage, 
+                HousePercentage,
+                PetPercentage, 
+                TVPercentage, 
+                UtilityPercentage, 
+                ParkingPercentage, 
+                StoragePercentage,
+                SecurityPercentage,
+                LateFee,
+                NSFFee,
+                PropertyID
+            )
+            VALUES ( 
+                ${data.RentPercentage},
+                ${data.HousePercentage},
+                ${data.PetPercentage},
+                ${data.TVPercentage},
+                ${data.UtilityPercentage},
+                ${data.ParkingPercentage},
+                ${data.StoragePercentage},
+                ${data.SecurityPercentage},
+                ${data.LateFee},
+                ${data.NSFFee},
+                ${propertyID}
+            )
+        `);
+    }
+
+    async updateRecurringChargesTax(data) {
+        await db.execute(`
+            UPDATE recurringchargestax
+            SET 
+                RentPercentage = ${data.RentPercentage},
+                HousePercentage = ${data.HousePercentage},
+                PetPercentage = ${data.PetPercentage},
+                TVPercentage = ${data.TVPercentage},
+                UtilityPercentage = ${data.UtilityPercentage},
+                ParkingPercentage = ${data.ParkingPercentage}
+                StoragePercentage = ${data.StoragePercentage}
+                SecurityPercentage = ${data.SecurityPercentage}
+                LateFee = ${data.LateFee}
+                NSFFee = ${data.NSFFee}
+            WHERE 
+                RecurringChargesTaxID = ${data.RecurringChargesTaxID}
+        `);
+    }
+
 }

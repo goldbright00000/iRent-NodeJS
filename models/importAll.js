@@ -69,6 +69,7 @@ const JournalTypeModel = require('./journalType');
 const MakeReadyTasksModel = require('./makeReadyTasks');
 const UserPropertyMapModel = require('./userpropertymap');
 const FirstTimeUserModel = require('./firstTimeUser');
+const CheckModel = require('./checks');
 
 module.exports = {
     Tenants: new TenantsModel(),
@@ -141,5 +142,6 @@ module.exports = {
     JournalType: new JournalTypeModel(),
     MakeReadyTasks: new MakeReadyTasksModel(),
     UserPropertyMap: new UserPropertyMapModel(),
-    FirstTimeUser: new FirstTimeUserModel()
+    FirstTimeUser: new FirstTimeUserModel(),
+    Check: new CheckModel()
 };
