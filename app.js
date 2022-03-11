@@ -86,4 +86,4 @@ app.use((req, res, next) => {
     res.status(404).send('<h1>Page Not Found</h1>');
 });
 
-app.listen(process.env.PORT || 5000);
+app.listen(process.env.PORT || 3006);

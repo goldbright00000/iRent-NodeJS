@@ -53,6 +53,7 @@ module.exports = class Units {
                 From Units u
                 LEFT JOIN Tenants t ON t.UnitID = u.UNitID
                 Where u.PropertyID = ${pID}  
+                and t.Prospect = 2
                 Order By u.UnitName
             `);
             response = res[0];
